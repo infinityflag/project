@@ -1,0 +1,150 @@
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <cstdio>
+using namespace std;
+
+struct Move{
+    int r;
+    int c;
+};
+
+char player = 'x', opponent = 'o';
+int isMoveLeft(char board[3][3]){
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            if(board[i][j] == ' '){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int evaluate(char board[3][3]){
+    for(int row=0; row < 3; row++){
+        if(board[row][0] == board[row][1] && board[row][1] == board[row][2]){
+            //return +10;
+            if(board[row][0] == player){
+                return +10;
+            }
+            if(board[row][0] == opponent){
+                return -10;
+            }
+        }
+    }
+
+    for(int col=0; col < 3; col++){
+        if(board[0][col] == board[1][col] && board[1][col] == board[2][col]){
+            if(board[0][col] == player){
+                return +10;
+            }
+            if(board[0][col] == opponent){
+                return -10;
+            }
+        }
+    }   
+
+    if(board[0][0] == board[1][1] && board[1][1] == board[2][2]){
+        if(board[0][0] == player){
+            return +10;
+        }
+        if(board[0][0] == opponent){
+            return -10;
+        }
+    }
+
+    if(board[2][0] == board[1][1] && board[1][1] == board[0][2]){
+        if(board[2][0] == player){
+            return 10;
+        }
+        if(board[2][0] == opponent){
+            return -10;
+        }
+    }
+    return 0;
+}
+
+
+int minimax(char board[3][3], int depth, bool isMax){
+    int score = evaluate(board);
+    if(score == 10){
+        return score;
+    }
+    if(score == -10){
+        return score;
+    }
+
+    if(isMax){
+        int best = -100;
+        for(int i=0;i<3;i++){
+            for(int j=0;j<3;j++){
+                if(board[i][j] == ' '){
+                    board[i][j] = player;
+                    best = max(best, minimax(board, depth+1, false));
+                    board[i][j] = ' ';
+                }
+            }
+        }
+        return best;
+    }
+    else{
+        int best=1000;
+        for(int i=0;i<3;i++){
+            for(int j=0;j<3;j++){
+                if(board[i][j] == ' '){
+                    board[i][j] = opponent;
+                    best = min(best, minimax(board, depth+1, false));
+                    board[i][j] = ' ';
+                }
+            }
+        }
+        return best;
+    }
+    
+}
+
+int optimalMove(char board[3][3]){
+    int bestVal = -100;
+    Move bestMove;
+    bestMove.r = -1; 
+    bestMove.c = -1; 
+
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            if(board[i][j] == ' '){
+                board[i][j] = player;
+                int moveVal = minimax(board, 0, false);
+                board[i][j] = ' ';
+
+                if(moveVal > bestVal){
+                    bestMove.r = i;
+                    bestMove.c = j;
+                    bestVal = moveVal;
+                }
+            }
+        }
+    }
+    cout << "Best Move" << bestVal << '\n'; 
+    return bestMove;
+}
+
+int log2(int n){
+    return n == 1 ? 0 : 1 + log2(n/2);
+}
+
+int main() {
+    char board[3][3] =
+    {
+        { 'x', 'o', 'x' },
+        { 'o', 'o', 'x' },
+        { ' ', ' ', ' ' }
+    };
+    Move bestMove = optimalMove(board);
+    printf("The Optimal Move is :\n");
+    printf("ROW: %d COL: %d\n\n", bestMove.r,
+                                  bestMove.c );
+    return 0;
+}
+
+
